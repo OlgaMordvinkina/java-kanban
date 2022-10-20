@@ -25,7 +25,7 @@ public class Manager {
         return subtaskStore.values();
     }
 
-    void saveEpic(Epic epic) {
+    void saveEpic(Epic epic) { //получение списка задач
         int currentEpicId = assignsId();
         epic.setId(currentEpicId);
         epicStore.put(currentEpicId, epic);
@@ -38,23 +38,48 @@ public class Manager {
         }
     }
     
-    void deleteTasks() {
+    void deleteTasks() { //удаление всех задач
         taskStore.clear();
         epicStore.clear();
         subtaskStore.clear();
         System.out.println("Все задачи удалены.");
     }
 
-    void getTaskById(int id) {
-        if (taskStore.containsKey(id) || epicStore.containsKey(id) || subtaskStore.containsKey(id)) {
+    void getTaskById(int id) { //получение по ид
+        if (taskStore.containsKey(id)) {
             taskStore.get(id);
+            System.out.println("Задача добавлена.");
+        } else if (epicStore.containsKey(id)) {
+            epicStore.get(id);
+            System.out.println("Задача добавлена.");
+        } else if (subtaskStore.containsKey(id)) {
+            subtaskStore.get(id);
+            System.out.println("Задача добавлена.");
+        } else {
+            System.out.println("Задачи с таким идентификаторов не существует.");
         }
     }
 
-
-    void searchTask(int map) {
-
+    void deleteTaskById(int id) { //удалить задачу по идентификатору
+        if (taskStore.containsKey(id)) {
+            taskStore.remove(id);
+            System.out.println("Задача удалена.");
+        } else if (epicStore.containsKey(id)) {
+            epicStore.remove(id);
+            System.out.println("Задача удалена.");
+        } else if (subtaskStore.containsKey(id)) {
+            subtaskStore.remove(id);
+            System.out.println("Задача удалена.");
+        } else {
+            System.out.println("Задачи с таким идентификаторов не существует.");
+        }
     }
+
+    void updateTask(Task task) { //обновление задачи - !!!!!!!!!
+        taskStore.put(task.getId(), task);
+    }
+
+
 
     int assignsId() {
         return ++id;
