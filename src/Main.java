@@ -25,8 +25,9 @@ public class Main {
 
         manager.saveEpic(epic);
 
-        Collection<Epic> epics = manager.getListEpics();
+        Collection<Epic> epics = manager.getEpicStore();
 
-        System.out.println(manager.subtaskStore);
+        //System.out.println(manager.subtaskStore);
+        manager.getListAllTasks();
     }
 }

@@ -1,12 +1,12 @@
 package tasks;
 
 public class Task { //задача
-    private Integer id;
-    private String title;
-    private String description;
-    private String status;
+    protected Integer id;
+    protected String title;
+    protected String description;
+    protected String status;
 
-    public Task(Integer id, String title, String description, String status) {
+    public Task(String title, String description) {
         this.title = title;
         this.description = description;
     }
@@ -16,7 +16,7 @@ public class Task { //задача
 
     @Override
     public String toString() {
-        return "tasks.Task:\n" +
+        return "Task:\n" +
                 "title: " + title +
                 ", \ndescription: " + description +
                 ", \nstatus: " + status +

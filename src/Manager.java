@@ -3,7 +3,6 @@ import tasks.Subtask;
 import tasks.Task;
 import java.util.Collection;
 import java.util.HashMap;
-import tasks.*;
 
 public class Manager {
     private static int id;
@@ -12,20 +11,19 @@ public class Manager {
     HashMap<Integer, Epic> epicStore = new HashMap<>();
     HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
 
-
-    Collection<Task> getListTasks() {
+    Collection<Task> getTaskStore() {
         return taskStore.values();
     }
 
-    Collection<Epic> getListEpics() {
+    Collection<Epic> getEpicStore() {
         return epicStore.values();
     }
 
-    Collection<Subtask> getListSubtasks() {
+    Collection<Subtask> getSubtasksStore() {
         return subtaskStore.values();
     }
 
-    void saveEpic(Epic epic) { //получение списка задач
+    void saveEpic(Epic epic) { //создание задачи
         int currentEpicId = assignsId();
         epic.setId(currentEpicId);
         epicStore.put(currentEpicId, epic);
@@ -35,6 +33,18 @@ public class Manager {
             subtask.setId(currentSubtaskId);
             subtask.setEpicId(currentEpicId);
             subtaskStore.put(currentSubtaskId, subtask);
+        }
+    }
+
+    void getListAllTasks() { //получение списка всех задач
+        if (!getTaskStore().isEmpty()) {
+            System.out.println(getTaskStore());
+        }
+        if (!getEpicStore().isEmpty()) {
+            System.out.println(getEpicStore());
+        }
+        if (!getSubtasksStore().isEmpty()) {
+            System.out.println(getSubtasksStore());
         }
     }
     
@@ -78,8 +88,6 @@ public class Manager {
     void updateTask(Task task) { //обновление задачи - !!!!!!!!!
         taskStore.put(task.getId(), task);
     }
-
-
 
     int assignsId() {
         return ++id;
