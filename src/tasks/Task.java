@@ -4,11 +4,12 @@ public class Task { //задача
     protected Integer id;
     protected String title;
     protected String description;
-    protected String status;
+    protected TaskStatus status;
 
-    public Task(String title, String description) {
+    public Task(String title, String description, TaskStatus status) {
         this.title = title;
         this.description = description;
+        this.status = status;
     }
 
     public Task() {
@@ -47,11 +48,11 @@ public class Task { //задача
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 }

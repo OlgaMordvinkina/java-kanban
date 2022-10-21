@@ -6,6 +6,10 @@ import java.util.List;
 public class Epic extends Task { //эпик
     public List<Subtask> subtasks = new ArrayList<>();
 
+    public Epic() {
+        super();
+    }
+
     @Override
     public String toString() {
         return "Epic:\n" +
@@ -14,7 +18,17 @@ public class Epic extends Task { //эпик
                 ", \nstatus: " + status +
                 ", \nid: " + id;
     }
-    public Epic() {
-        super();
+
+    public List<Subtask> getSubtasks() {
+        return subtasks;
     }
+
+    public void setSubtasks(List<Subtask> subtasks) {
+        this.subtasks = subtasks;
+    }
+
+    public void addSubtask(Subtask subtask) {
+        this.subtasks.add(subtask);
+    }
+
 }
