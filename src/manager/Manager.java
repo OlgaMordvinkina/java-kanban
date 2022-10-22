@@ -32,7 +32,7 @@ public class Manager {
         epicStore.put(currentEpicId, epic);
     }
 
-    public void updateEpic(Epic epic) { //обновление epic задачи
+    public void updateEpic(Epic epic) {
         epicStore.put(epic.getId(), epic);
     }
 
@@ -88,7 +88,7 @@ public class Manager {
         taskStore.put(currentEpicId, task);
     }
 
-    public void updateTask(Task task) { //обновление task задачи
+    public void updateTask(Task task) {
         taskStore.put(task.getId(), task);
     }
 
