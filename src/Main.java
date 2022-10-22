@@ -1,3 +1,4 @@
+import manager.Manager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.TaskStatus;
@@ -15,15 +16,17 @@ public class Main {
         Subtask subtask = new Subtask();
         subtask.setTitle("Хоз. товары");
         subtask.setDescription("Порошок");
+        subtask.setEpicId(epic.getId());
         manager.saveSubtask(subtask);
 
         Subtask subtaskTwo = new Subtask();
         subtaskTwo.setTitle("Продукты");
         subtaskTwo.setDescription("Молоко");
+        subtaskTwo.setEpicId(epic.getId());
         manager.saveSubtask(subtaskTwo);
 
-        epic.subtasks.add(subtask);
-        epic.subtasks.add(subtaskTwo);
+        epic.getSubtasks().add(subtask);
+        epic.getSubtasks().add(subtaskTwo);
 
         Epic epicTwo = new Epic();
         epicTwo.setTitle("Собрать вещи");
@@ -33,6 +36,7 @@ public class Main {
         Subtask subtaskThree = new Subtask();
         subtaskThree.setTitle("Коробка 1:");
         subtaskThree.setDescription("Со стеклом");
+        subtaskThree.setEpicId(epicTwo.getId());
         manager.saveSubtask(subtaskThree);
 
         manager.getListAllTasks();
