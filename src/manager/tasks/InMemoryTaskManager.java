@@ -12,21 +12,24 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
     private static int id;
 
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    protected HashMap<Integer, Task> taskStore = new HashMap<>();
-    protected HashMap<Integer, Epic> epicStore = new HashMap<>();
-    protected HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
+    private HashMap<Integer, Task> taskStore = new HashMap<>();
+    private HashMap<Integer, Epic> epicStore = new HashMap<>();
+    private HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
 
-    Collection<Task> getTaskStore() {
+    @Override
+    public Collection<Task> getTaskStore() {
         return taskStore.values();
     }
 
-    Collection<Epic> getEpicStore() {
+    @Override
+    public Collection<Epic> getEpicStore() {
         return epicStore.values();
     }
 
-    Collection<Subtask> getSubtasksStore() {
+    @Override
+    public Collection<Subtask> getSubtasksStore() {
         return subtaskStore.values();
     }
 

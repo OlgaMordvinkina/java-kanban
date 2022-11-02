@@ -4,7 +4,15 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 
+import java.util.Collection;
+
 public interface TaskManager {
+
+    Collection<Task> getTaskStore();
+
+    Collection<Epic> getEpicStore();
+
+    Collection<Subtask> getSubtasksStore();
 
     void saveEpic(Epic epic);
 
