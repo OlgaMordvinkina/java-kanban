@@ -2,8 +2,8 @@ package tasks;
 
 public class Subtask extends Task {
     private Integer epicId;
-    public Subtask() {
-        super();
+    public Subtask(String title, String description) {
+        super(title, description);
     } //подзадача
 
     public Integer getEpicId() {

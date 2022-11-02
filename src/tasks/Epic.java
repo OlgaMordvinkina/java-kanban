@@ -6,8 +6,8 @@ import java.util.List;
 public class Epic extends Task { //эпик
     private List<Subtask> subtasks = new ArrayList<>();
 
-    public Epic() {
-        super();
+    public Epic(String title, String description) {
+        super(title, description);
     }
 
     @Override

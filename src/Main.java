@@ -1,4 +1,6 @@
-import manager.Manager;
+import manager.Managers;
+import manager.history.HistoryManager;
+import manager.tasks.TaskManager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.TaskStatus;
@@ -6,36 +8,27 @@ import tasks.TaskStatus;
 public class Main {
 
     public static void main(String[] args) {
-        Manager manager = new Manager();
+        TaskManager manager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
 
-        Epic epic = new Epic();
-        epic.setTitle("Покупки");
-        epic.setDescription("Для дома");
+        Epic epic = new Epic("Покупки", "Для дома");
         manager.saveEpic(epic);
 
-        Subtask subtask = new Subtask();
-        subtask.setTitle("Хоз. товары");
-        subtask.setDescription("Порошок");
+        Subtask subtask = new Subtask("Хоз. товары", "Порошок");
         subtask.setEpicId(epic.getId());
         manager.saveSubtask(subtask);
 
-        Subtask subtaskTwo = new Subtask();
-        subtaskTwo.setTitle("Продукты");
-        subtaskTwo.setDescription("Молоко");
+        Subtask subtaskTwo = new Subtask("Продукты", "Молоко");
         subtaskTwo.setEpicId(epic.getId());
         manager.saveSubtask(subtaskTwo);
 
         epic.getSubtasks().add(subtask);
         epic.getSubtasks().add(subtaskTwo);
 
-        Epic epicTwo = new Epic();
-        epicTwo.setTitle("Собрать вещи");
-        epicTwo.setDescription("По коробкам:");
+        Epic epicTwo = new Epic("Собрать вещи", "По коробкам:");
         manager.saveEpic(epicTwo);
 
-        Subtask subtaskThree = new Subtask();
-        subtaskThree.setTitle("Коробка 1:");
-        subtaskThree.setDescription("Со стеклом");
+        Subtask subtaskThree = new Subtask("Коробка 1:", "Со стеклом");
         subtaskThree.setEpicId(epicTwo.getId());
         manager.saveSubtask(subtaskThree);
 
@@ -55,5 +48,21 @@ public class Main {
         manager.deleteSubtask(5);
 
         manager.getListAllTasks();
+
+        manager.getEpicById(1);
+
+        manager.getEpicById(1);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(2);
+        manager.getSubtaskById(4);
+        manager.getSubtaskById(2);
+
+        System.out.println(historyManager.getHistory());
     }
 }
