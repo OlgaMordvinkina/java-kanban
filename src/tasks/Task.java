@@ -19,7 +19,7 @@ public class Task { //задача
 
     @Override
     public String toString() {
-        return "Task:\n" +
+        return "\nTask:\n" +
                 "title: " + title +
                 ", \ndescription: " + description +
                 ", \nstatus: " + status +

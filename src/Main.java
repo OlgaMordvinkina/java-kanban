@@ -3,7 +3,11 @@ import manager.history.HistoryManager;
 import manager.tasks.TaskManager;
 import tasks.Epic;
 import tasks.Subtask;
+import tasks.Task;
 import tasks.TaskStatus;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 
@@ -11,58 +15,66 @@ public class Main {
         TaskManager manager = Managers.getDefault();
         HistoryManager historyManager = Managers.getDefaultHistory();
 
-        Epic epic = new Epic("Покупки", "Для дома");
+        Task task = new Task("Планы на день:", "Выбросить мусор");
+        Task task2 = new Task("Планы на неделю:", "Сдать ТЗ");
+
+        Epic epic = new Epic("Покупки", "Еда");
+        Subtask subtask = new Subtask("Хлебобулочные", "Рогалики");
+        Subtask subtask2 = new Subtask("Мясное", "Фарш");
+        Subtask subtask3 = new Subtask("Соусы", "Майонез");
+
+        Epic epic2 = new Epic("Покупки", "Для дома");
+
+        manager.saveTask(task);
+        manager.saveTask(task2);
+
         manager.saveEpic(epic);
 
-        Subtask subtask = new Subtask("Хоз. товары", "Порошок");
         subtask.setEpicId(epic.getId());
         manager.saveSubtask(subtask);
 
-        Subtask subtaskTwo = new Subtask("Продукты", "Молоко");
-        subtaskTwo.setEpicId(epic.getId());
-        manager.saveSubtask(subtaskTwo);
+        subtask2.setEpicId(epic.getId());
+        manager.saveSubtask(subtask2);
+
+        subtask3.setEpicId(epic.getId());
+        manager.saveSubtask(subtask3);
+
+        manager.saveEpic(epic2);
 
         epic.getSubtasks().add(subtask);
-        epic.getSubtasks().add(subtaskTwo);
-
-        Epic epicTwo = new Epic("Собрать вещи", "По коробкам:");
-        manager.saveEpic(epicTwo);
-
-        Subtask subtaskThree = new Subtask("Коробка 1:", "Со стеклом");
-        subtaskThree.setEpicId(epicTwo.getId());
-        manager.saveSubtask(subtaskThree);
-
-        manager.getListAllTasks();
+        epic.getSubtasks().add(subtask2);
+        epic.getSubtasks().add(subtask3);
         System.out.println("\n");
-
-        subtaskTwo.setTitle("Товары для ремонта");
-        subtaskTwo.setDescription("Молоток");
-        subtaskTwo.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateSubtask(subtaskTwo);
-
-        subtask.setStatus(TaskStatus.DONE);
-
-        manager.getListAllTasks();
-        System.out.println("\n");
-
-        manager.deleteSubtask(5);
-
         manager.getListAllTasks();
 
-        manager.getEpicById(1);
-
-        manager.getEpicById(1);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
-        manager.getSubtaskById(2);
+        manager.getEpicById(7);
         manager.getSubtaskById(4);
-        manager.getSubtaskById(2);
+        manager.getEpicById(7);
+        manager.getSubtaskById(6);
+        manager.getTaskById(2);
+        manager.getSubtaskById(5);
 
+        System.out.println("\n");
+        System.out.println(historyManager.getHistory());
+
+        manager.getSubtaskById(4);
+        manager.getSubtaskById(6);
+        manager.getEpicById(7);
+        manager.getSubtaskById(5);
+        manager.getTaskById(2);
+
+        System.out.println("\n");
+        System.out.println(historyManager.getHistory());
+
+        manager.deleteTask(2);
+
+        System.out.println("\n");
+        System.out.println(historyManager.getHistory());
+
+        manager.deleteEpic(3);
+
+
+        System.out.println("\n");
         System.out.println(historyManager.getHistory());
     }
 }

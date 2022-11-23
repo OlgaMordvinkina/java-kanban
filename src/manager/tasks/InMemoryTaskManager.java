@@ -47,17 +47,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void deleteTask(int id) {
+        taskStore.remove(id);
+        historyManager.remove(id);
+    }
+
+    @Override
     public void deleteEpic(int id) {
         Epic epic = epicStore.get(id);
         epicStore.remove(id);
         for (Subtask subtask : epic.getSubtasks()) {
-            subtaskStore.remove(subtask.getId());
+            deleteSubtask(subtask.getId());
         }
-    }
-
-    @Override
-    public void deleteTask(int id) {
-        taskStore.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -70,6 +72,14 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(updateStatus(epic.getSubtasks()));
             subtaskStore.remove(id);
         }
+        historyManager.remove(id);
+    }
+
+    @Override
+    public void deleteAllTasks() { //удаление всех задач (тасок, епиков, сабтасок)
+        taskStore.clear();
+        epicStore.clear();
+        subtaskStore.clear();
     }
 
     @Override
@@ -121,13 +131,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (!getSubtasksStore().isEmpty()) {
             System.out.println(getSubtasksStore());
         }
-    }
-
-    @Override
-    public void deleteAllTasks() { //удаление всех задач (тасок, епиков, сабтасок)
-        taskStore.clear();
-        epicStore.clear();
-        subtaskStore.clear();
     }
 
     @Override

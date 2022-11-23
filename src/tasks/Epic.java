@@ -12,7 +12,7 @@ public class Epic extends Task { //эпик
 
     @Override
     public String toString() {
-        return "Epic:\n" +
+        return "\nEpic:\n" +
                 "title: " + title +
                 ", \ndescription: " + description +
                 ", \nstatus: " + status +

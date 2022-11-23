@@ -12,7 +12,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask:\n" +
+        return "\nSubtask:\n" +
                 "title: " + title +
                 ", \ndescription: " + description +
                 ", \nstatus: " + status +
