@@ -4,6 +4,7 @@ import tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
@@ -11,23 +12,18 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        Node<Task> similarNode = historyStore.getNode(task.getId());
-        if (similarNode != null) {
-            historyStore.removeNode(similarNode);
-        }
-
+        historyStore.remove(historyStore, task);
         historyStore.linkLast(task);
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return historyStore.getTasks();
     }
 
     @Override
     public void remove(int id) {
-        Node<Task> node = historyStore.getNode(id);
-        historyStore.removeNode(node);
+        historyStore.removeById(historyStore, id);
     }
 }
 
@@ -53,11 +49,11 @@ class HistoryLinkedList<T extends Task> {
         size++;
     }
 
-    public ArrayList<T> getTasks() {
+    public List<T> getTasks() {
         if (idEndNodes.isEmpty()) {
             return null;
         }
-        ArrayList<T> allTasks = new ArrayList<>();
+        List<T> allTasks = new ArrayList<>();
         if (head != null) {
             allTasks.add(head.getData());
             Node<T> next = head.getNext();
@@ -84,6 +80,18 @@ class HistoryLinkedList<T extends Task> {
 
             size--;
         }
+    }
+
+    public void remove(HistoryLinkedList<Task> historyStore, Task task) {
+        Node<Task> similarNode = historyStore.getNode(task.getId());
+        if (similarNode != null) {
+            historyStore.removeNode(similarNode);
+        }
+    }
+
+    public void removeById(HistoryLinkedList<Task> historyStore, int id) {
+        Node<Task> node = historyStore.getNode(id);
+        historyStore.removeNode(node);
     }
 
     public Node<T> getNode(int id) {
