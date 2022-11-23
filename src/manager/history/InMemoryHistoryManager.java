@@ -2,7 +2,9 @@ package manager.history;
 
 import tasks.Task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private static final HistoryLinkedList<Task> historyStore = new HistoryLinkedList<>();
