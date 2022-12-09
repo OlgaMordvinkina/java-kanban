@@ -14,9 +14,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    private HashMap<Integer, Task> taskStore = new HashMap<>();
-    private HashMap<Integer, Epic> epicStore = new HashMap<>();
-    private HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
+    protected static HashMap<Integer, Task> taskStore = new HashMap<>();
+    protected static HashMap<Integer, Epic> epicStore = new HashMap<>();
+    protected static HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
 
     @Override
     public Collection<Task> getTaskStore() {
@@ -53,7 +53,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTask() {
+    public void deleteTasks() {
         for (Task task : taskStore.values()) {
             historyManager.remove(task.getId());
         }
@@ -71,7 +71,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpic() {
+    public void deleteEpics() {
         for (Epic epic : epicStore.values()) {
             historyManager.remove(epic.getId());
         }
@@ -92,7 +92,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteSubtask() {
+    public void deleteSubtasks() {
         for (Subtask subtask : subtaskStore.values()) {
             historyManager.remove(subtask.getId());
         }
@@ -101,9 +101,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
-        deleteTask();
-        deleteEpic();
-        deleteSubtask();
+        deleteTasks();
+        deleteEpics();
+        deleteSubtasks();
     }
 
     @Override

@@ -3,8 +3,18 @@ package tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import static manager.tasks.TypeTasks.EPIC;
+
 public class Epic extends Task { //эпик
     private List<Subtask> subtasks = new ArrayList<>();
+
+    public Epic(Integer id, String title, String description, TaskStatus status) {
+        super(id, title, description, status);
+    }
+
+    public Epic(String title, String description, TaskStatus status) {
+        super(title, description, status);
+    }
 
     public Epic(String title, String description) {
         super(title, description);
@@ -12,11 +22,7 @@ public class Epic extends Task { //эпик
 
     @Override
     public String toString() {
-        return "\nEpic:\n" +
-                "title: " + title +
-                ", \ndescription: " + description +
-                ", \nstatus: " + status +
-                ", \nid: " + id;
+        return String.format("%s,%s,%s,%s,%s\n", id, EPIC, title, status, description);
     }
 
     public List<Subtask> getSubtasks() {

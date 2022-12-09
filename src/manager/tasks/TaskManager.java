@@ -20,15 +20,15 @@ public interface TaskManager {
 
     void deleteTask(int id);
 
-    void deleteTask();
+    void deleteTasks();
 
     void deleteEpic(int id);
 
-    void deleteEpic();
+    void deleteEpics();
 
     void deleteSubtask(int id);
 
-    void deleteSubtask();
+    void deleteSubtasks();
 
     void deleteAllTasks();
 

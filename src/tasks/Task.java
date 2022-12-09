@@ -1,10 +1,19 @@
 package tasks;
 
+import static manager.tasks.TypeTasks.TASK;
+
 public class Task { //задача
     protected Integer id;
     protected String title;
     protected String description;
     protected TaskStatus status;
+
+    public Task(Integer id, String title, String description, TaskStatus status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+    }
 
     public Task(String title, String description, TaskStatus status) {
         this.title = title;
@@ -19,11 +28,7 @@ public class Task { //задача
 
     @Override
     public String toString() {
-        return "\nTask:\n" +
-                "title: " + title +
-                ", \ndescription: " + description +
-                ", \nstatus: " + status +
-                ", \nid: " + id;
+        return String.format("%s,%s,%s,%s,%s\n", id, TASK, title, status, description);
     }
 
     public Integer getId() {

@@ -1,10 +1,23 @@
 package tasks;
 
+import static manager.tasks.TypeTasks.SUBTASK;
+
 public class Subtask extends Task {
     private Integer epicId;
+
+    public Subtask(Integer id, String title, String description, TaskStatus status, Integer epicId) {
+        super(id, title, description, status);
+        this.epicId = epicId;
+    }
+
+    public Subtask(String title, String description, TaskStatus status, Integer epicId) {
+        super(title, description, status);
+        this.epicId = epicId;
+    }
+
     public Subtask(String title, String description) {
         super(title, description);
-    } //подзадача
+    }
 
     public Integer getEpicId() {
         return epicId;
@@ -12,11 +25,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "\nSubtask:\n" +
-                "title: " + title +
-                ", \ndescription: " + description +
-                ", \nstatus: " + status +
-                ", \nid: " + id;
+        return String.format("%s,%s,%s,%s,%s,%s\n", id, SUBTASK, title, status, description, getEpicId());
     }
 
     public void setEpicId(Integer epicId) {

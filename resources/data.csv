@@ -1,0 +1,10 @@
+id,type,name,status,description,epic
+1,TASK,Планы на день:,NEW,Выбросить мусор
+2,TASK,Планы на неделю:,NEW,Сдать ТЗ
+3,EPIC,Покупки,NEW,Еда
+4,SUBTASK,Хлебобулочные,NEW,Рогалики,3
+5,SUBTASK,Мясное,NEW,Фарш,3
+6,EPIC,Покупки,NEW,Для дома
+7,SUBTASK,Мясное,NEW,Фарш,6
+
+1,4,3,6,2,5
