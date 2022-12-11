@@ -1,5 +1,6 @@
 package manager.tasks;
 
+import exceptions.ManagerLoadException;
 import exceptions.ManagerSaveException;
 import manager.Managers;
 import manager.history.HistoryManager;
@@ -7,6 +8,7 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
+import utils.CSVUtil;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,7 +63,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 manager.getSubtaskById(5);
 
                 fileManager.save();
-                System.out.println(FileBackedTasksManager.historyFromString("5,4,1,0,1"));
+                System.out.println(CSVUtil.historyFromString("5,4,1,0,1"));
                 break;
             }
         }
@@ -93,108 +95,62 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 fileWriter.write(String.format("%s", value));
             }
             fileWriter.write("\n");
-            fileWriter.write(historyToString(this.historyManager));
+            fileWriter.write(CSVUtil.historyToString(this.historyManager));
         } catch (IOException exception) {
             throw new ManagerSaveException("Ошибка. Файл не записан.");
-        }
-    }
-
-    private static String historyToString(HistoryManager manager) {
-        List<String> idHistory = new ArrayList<>();
-        for (Task history : manager.getHistory()) {
-            idHistory.add(history.getId().toString());
-        }
-        return String.join(",", idHistory);
-    }
-
-    private static List<Integer> historyFromString(String value) {
-        String[] idHistory = value.split(",");
-        List<Integer> idHistoryList = new ArrayList<>();
-        for (String id : idHistory) {
-            idHistoryList.add(Integer.valueOf(id));
-        }
-        return idHistoryList;
-    }
-
-    private Task fromString(String value) {
-        String[] allTasks = value.split(",");
-        int id = Integer.parseInt(allTasks[0]);
-        TypeTasks typeTask = TypeTasks.valueOf(allTasks[1]);
-        String title = allTasks[2];
-        TaskStatus status = TaskStatus.valueOf(allTasks[3]);
-        String description = allTasks[4];
-
-        switch (typeTask) {
-            case TASK:
-                return new Task(id, title, description, status);
-            case EPIC:
-                return new Epic(id, title, description, status);
-            case SUBTASK:
-                int epicId = Integer.parseInt(allTasks[5]);
-                return new Subtask(id, title, description, status, epicId);
-            default:
-                return null;
         }
     }
 
     private static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileManager = new FileBackedTasksManager(file);
         String data;
-        boolean arm = false;
-        boolean fields = true;
         try {
             data = Files.readString(Path.of(file.getAbsolutePath()));
         } catch (IOException exception) {
-            throw new ManagerSaveException("Ошибка. Файл не прочитан.");
+            throw new ManagerLoadException("Ошибка. Файл не прочитан.");
         }
         String[] lines = data.split("\r?\n");
-        for (String line : lines) {
-            if (fields) {
-                fields = false;
-                continue;
-            }
-            if (line.isBlank()) {
-                arm = true;
-                continue;
-            }
-            String[] obj = line.split(",");
-            if (arm) {
-                for (String idHistory : obj) {
+        for (int i = 1; i < lines.length; i++) {
+            String[] obj = lines[i].split(",");
+            if (!lines[i].isBlank()) {
+                int id = Integer.parseInt(obj[0]);
+                TypeTasks type = TypeTasks.valueOf(obj[1]);
+                String title = obj[2];
+                TaskStatus status = TaskStatus.valueOf(obj[3]);
+                String description = obj[4];
 
-                    fileManager.getTaskById(Integer.parseInt(idHistory));
-                    fileManager.getEpicById(Integer.parseInt(idHistory));
-                    fileManager.getSubtaskById(Integer.parseInt(idHistory));
+                switch (Objects.requireNonNull(type)) {
+                    case TASK: {
+                        Task task = new Task(id, title, description, status);
+                        taskStore.put(id, task);
+                        break;
+                    }
+                    case EPIC: {
+                        Epic epic = new Epic(id, title, description, status);
+                        epicStore.put(id, epic);
+                        break;
+                    }
+                    case SUBTASK: {
+                        int epicId = Integer.parseInt(obj[5]);
+                        Subtask subtask = new Subtask(id, title, description, status, epicId);
+                        subtaskStore.put(id, subtask);
+                        break;
+                    }
+                }
+            } else {
+                String[] history = lines[i+1].split(",");
+                for (String idHistory : history) {
+                    if (taskStore.containsKey(Integer.parseInt(idHistory))) {
+                        fileManager.historyManager.add(taskStore.get(Integer.parseInt(idHistory)));
+                    } else if (epicStore.containsKey(Integer.parseInt(idHistory))) {
+                        fileManager.historyManager.add(epicStore.get(Integer.parseInt(idHistory)));
+                    } else if (subtaskStore.containsKey(Integer.parseInt(idHistory))) {
+                        fileManager.historyManager.add(subtaskStore.get(Integer.parseInt(idHistory)));
+                    }
                 }
                 break;
             }
-
-            int id = Integer.parseInt(obj[0]);
-            TypeTasks type = TypeTasks.valueOf(obj[1]);
-            String title = obj[2];
-            TaskStatus status = TaskStatus.valueOf(obj[3]);
-            String description = obj[4];
-
-            switch (Objects.requireNonNull(type)) {
-                case TASK: {
-                    Task task = new Task(id, title, description, status);
-                    taskStore.put(id, task);
-                    break;
-                }
-                case EPIC: {
-                    Epic epic = new Epic(id, title, description, status);
-                    epicStore.put(id, epic);
-                    break;
-                }
-                case SUBTASK: {
-                    int epicId = Integer.parseInt(obj[5]);
-                    Subtask subtask = new Subtask(id, title, description, status, epicId);
-                    subtaskStore.put(id, subtask);
-                    break;
-                }
-            }
         }
-
-
         return fileManager;
     }
 
