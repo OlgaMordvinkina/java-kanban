@@ -7,6 +7,7 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 
+import java.time.Instant;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -14,9 +15,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    protected static HashMap<Integer, Task> taskStore = new HashMap<>();
-    protected static HashMap<Integer, Epic> epicStore = new HashMap<>();
-    protected static HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
+    protected static final HashMap<Integer, Task> taskStore = new HashMap<>();
+    protected static final HashMap<Integer, Epic> epicStore = new HashMap<>();
+    protected static final HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
+    protected static final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     @Override
     public Collection<Task> getTaskStore() {
@@ -42,22 +44,46 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void saveSubtask(Subtask subtask) {
+        int currentSubtaskId = generateId();
+        subtask.setId(currentSubtaskId);
+        subtask.setStatus(TaskStatus.NEW);
+        subtaskStore.put(currentSubtaskId, subtask);
+        addNewPrioritizedTask(subtask);
+        addSubtaskToEpic(subtask);
+    }
+
+    @Override
+    public void saveTask(Task task) {
+        int currentEpicId = generateId();
+        task.setId(currentEpicId);
+        task.setStatus(TaskStatus.NEW);
+        addNewPrioritizedTask(task);
+        taskStore.put(currentEpicId, task);
+    }
+
+    @Override
     public void updateEpic(Epic epic) {
         epicStore.put(epic.getId(), epic);
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        addNewPrioritizedTask(subtask);
+        subtaskStore.put(subtask.getId(), subtask);
+        addSubtaskToEpic(subtask);
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        addNewPrioritizedTask(task);
+        taskStore.put(task.getId(), task);
     }
 
     @Override
     public void deleteTask(int id) {
         taskStore.remove(id);
         historyManager.remove(id);
-    }
-
-    @Override
-    public void deleteTasks() {
-        for (Task task : taskStore.values()) {
-            historyManager.remove(task.getId());
-        }
-        taskStore.clear();
     }
 
     @Override
@@ -71,14 +97,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpics() {
-        for (Epic epic : epicStore.values()) {
-            historyManager.remove(epic.getId());
-        }
-        epicStore.clear();
-    }
-
-    @Override
     public void deleteSubtask(int id) {
         Subtask subtask = subtaskStore.get(id);
         Epic epic = epicStore.get(subtask.getEpicId());
@@ -89,6 +107,22 @@ public class InMemoryTaskManager implements TaskManager {
             subtaskStore.remove(id);
         }
         historyManager.remove(id);
+    }
+
+    @Override
+    public void deleteTasks() {
+        for (Task task : taskStore.values()) {
+            historyManager.remove(task.getId());
+        }
+        taskStore.clear();
+    }
+
+    @Override
+    public void deleteEpics() {
+        for (Epic epic : epicStore.values()) {
+            historyManager.remove(epic.getId());
+        }
+        epicStore.clear();
     }
 
     @Override
@@ -107,41 +141,26 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void saveSubtask(Subtask subtask) {
-        int currentSubtaskId = generateId();
-        subtask.setId(currentSubtaskId);
-        subtask.setStatus(TaskStatus.NEW);
-        subtaskStore.put(currentSubtaskId, subtask);
-        addSubtaskToEpic(subtask);
-    }
-
-    @Override
-    public void updateSubtask(Subtask subtask) {
-        subtaskStore.put(subtask.getId(), subtask);
-        addSubtaskToEpic(subtask);
-    }
-
-    @Override
     public void addSubtaskToEpic(Subtask subtask) {
+        //TODO: check to test
         Epic epic = epicStore.get(subtask.getEpicId());
         if (epic != null) {
             epic.addSubtask(subtask);
+
+            epic.setDuration(epic.getSubtasks().stream()
+                    .map(Subtask::getDuration)
+                    .reduce(0L, Long::sum)
+            );
+
+            epic.setStartTime(epic.getSubtasks().stream()
+                    .map(Task::getStartTime)
+                    .min(Instant::compareTo)
+                    .orElse(null)
+            );
+
             epic.setStatus(updateStatus(epic.getSubtasks()));
             epicStore.put(epic.getId(), epic);
         }
-    }
-
-    @Override
-    public void saveTask(Task task) {
-        int currentEpicId = generateId();
-        task.setId(currentEpicId);
-        task.setStatus(TaskStatus.NEW);
-        taskStore.put(currentEpicId, task);
-    }
-
-    @Override
-    public void updateTask(Task task) {
-        taskStore.put(task.getId(), task);
     }
 
     @Override
@@ -158,27 +177,33 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void getTaskById(int id) {
+    public Task getTaskById(int id) {
+        Task task = null;
         if (taskStore.containsKey(id)) {
-            Task task = taskStore.get(id);
+            task = taskStore.get(id);
             recordHistory(task);
         }
+        return task;
     }
 
     @Override
-    public void getEpicById(int id) {
+    public Epic getEpicById(int id) {
+        Epic epic = null;
         if (epicStore.containsKey(id)) {
-            Epic epic = epicStore.get(id);
+            epic = epicStore.get(id);
             recordHistory(epic);
         }
+        return epic;
     }
 
     @Override
-    public void getSubtaskById(int id) {
+    public Subtask getSubtaskById(int id) {
+        Subtask subtask = null;
         if (subtaskStore.containsKey(id)) {
-            Subtask subtask = subtaskStore.get(id);
+            subtask = subtaskStore.get(id);
             recordHistory(subtask);
         }
+        return subtask;
     }
 
     private void recordHistory(Task task) {
@@ -220,6 +245,25 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return result;
+    }
+
+    private void addNewPrioritizedTask(Task task) {
+        prioritizedTasks.add(task);
+        checkTaskIntersection();
+    }
+
+    public Set<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
+    private void checkTaskIntersection() {
+        getPrioritizedTasks().stream().reduce((a, b) -> {
+            if(b.getStartTime().isBefore(a.getEndTime())) {
+                throw new RuntimeException();
+            }
+
+            return b;
+        });
     }
 
     int generateId() {

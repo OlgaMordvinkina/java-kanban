@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private static final HistoryLinkedList<Task> historyStore = new HistoryLinkedList<>();
-
     @Override
     public void add(Task task) {
         historyStore.remove(historyStore, task);
@@ -78,6 +77,7 @@ class HistoryLinkedList<T extends Task> {
                 tail = node.getPrev();
             }
 
+            idEndNodes.remove(node.getData().getId());
             size--;
         }
     }

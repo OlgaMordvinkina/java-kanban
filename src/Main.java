@@ -5,21 +5,23 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 
+import java.time.Instant;
+
 public class Main {
 
     public static void main(String[] args) {
         TaskManager manager = Managers.getDefault();
         HistoryManager historyManager = Managers.getDefaultHistory();
 
-        Task task = new Task("Планы на день:", "Выбросить мусор");
-        Task task2 = new Task("Планы на неделю:", "Сдать ТЗ");
+        Task task = new Task("Планы на день:", "Выбросить мусор", Instant.now(), 0);
+        Task task2 = new Task("Планы на неделю:", "Сдать ТЗ", Instant.now(), 0);
 
-        Epic epic = new Epic("Покупки", "Еда");
-        Subtask subtask = new Subtask("Хлебобулочные", "Рогалики");
-        Subtask subtask2 = new Subtask("Мясное", "Фарш");
-        Subtask subtask3 = new Subtask("Соусы", "Майонез");
+        Epic epic = new Epic("Покупки", "Еда", Instant.now(), 0);
+        Subtask subtask = new Subtask("Хлебобулочные", "Рогалики", Instant.now(), 0);
+        Subtask subtask2 = new Subtask("Мясное", "Фарш", Instant.now(), 0);
+        Subtask subtask3 = new Subtask("Соусы", "Майонез", Instant.now(), 0);
 
-        Epic epic2 = new Epic("Покупки", "Для дома");
+        Epic epic2 = new Epic("Покупки", "Для дома", Instant.now(), 0);
 
         manager.saveTask(task);
         manager.saveTask(task2);

@@ -44,10 +44,10 @@ public interface TaskManager {
 
     void getListAllTasks();
 
-    void getTaskById(int id);
+    Task getTaskById(int id);
 
-    void getEpicById(int id);
+    Epic getEpicById(int id);
 
-    void getSubtaskById(int id);
+    Subtask getSubtaskById(int id);
 
 }
