@@ -1,5 +1,6 @@
 package manager.tasks;
 
+import exceptions.ManagerTaskIntersection;
 import manager.Managers;
 import manager.history.HistoryManager;
 import tasks.Epic;
@@ -18,7 +19,16 @@ public class InMemoryTaskManager implements TaskManager {
     protected static final HashMap<Integer, Task> taskStore = new HashMap<>();
     protected static final HashMap<Integer, Epic> epicStore = new HashMap<>();
     protected static final HashMap<Integer, Subtask> subtaskStore = new HashMap<>();
-    protected static final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+
+    protected static final Set<Task> prioritizedTasks = new TreeSet<>((o1, o2) -> {
+        if (o1.getStartTime() == null) {
+            return 1;
+        } else if (o2.getStartTime() == null) {
+            return -1;
+        } else {
+            return o1.getStartTime().compareTo(o2.getStartTime());
+        }
+    });
 
     @Override
     public Collection<Task> getTaskStore() {
@@ -84,6 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         taskStore.remove(id);
         historyManager.remove(id);
+        prioritizedTasks.removeIf(task -> task.getId() == id);
     }
 
     @Override
@@ -94,6 +105,7 @@ public class InMemoryTaskManager implements TaskManager {
             deleteSubtask(subtask.getId());
         }
         historyManager.remove(id);
+        prioritizedTasks.removeIf(task -> task.getId() == id);
     }
 
     @Override
@@ -107,12 +119,14 @@ public class InMemoryTaskManager implements TaskManager {
             subtaskStore.remove(id);
         }
         historyManager.remove(id);
+        prioritizedTasks.removeIf(task -> task.getId() == id);
     }
 
     @Override
     public void deleteTasks() {
         for (Task task : taskStore.values()) {
             historyManager.remove(task.getId());
+            prioritizedTasks.removeIf(tasks -> tasks.getId().equals(task.getId()));
         }
         taskStore.clear();
     }
@@ -121,6 +135,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpics() {
         for (Epic epic : epicStore.values()) {
             historyManager.remove(epic.getId());
+            prioritizedTasks.removeIf(task -> task.getId().equals(epic.getId()));
         }
         epicStore.clear();
     }
@@ -129,6 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubtasks() {
         for (Subtask subtask : subtaskStore.values()) {
             historyManager.remove(subtask.getId());
+            prioritizedTasks.removeIf(task -> task.getId().equals(subtask.getId()));
         }
         subtaskStore.clear();
     }
@@ -142,7 +158,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubtaskToEpic(Subtask subtask) {
-        //TODO: check to test
         Epic epic = epicStore.get(subtask.getEpicId());
         if (epic != null) {
             epic.addSubtask(subtask);
@@ -154,6 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             epic.setStartTime(epic.getSubtasks().stream()
                     .map(Task::getStartTime)
+                    .filter(Objects::nonNull)
                     .min(Instant::compareTo)
                     .orElse(null)
             );
@@ -252,16 +268,15 @@ public class InMemoryTaskManager implements TaskManager {
         checkTaskIntersection();
     }
 
-    public Set<Task> getPrioritizedTasks() {
-        return prioritizedTasks;
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks); //отсортирован при инициализации
     }
 
     private void checkTaskIntersection() {
         getPrioritizedTasks().stream().reduce((a, b) -> {
-            if(b.getStartTime().isBefore(a.getEndTime())) {
-                throw new RuntimeException();
+            if (b.getStartTime() != null && a.getStartTime() != null && b.getStartTime().isBefore(a.getEndTime())) {
+                throw new ManagerTaskIntersection("Задачи пересекаются");
             }
-
             return b;
         });
     }

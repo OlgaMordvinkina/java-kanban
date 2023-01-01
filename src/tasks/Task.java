@@ -77,8 +77,12 @@ public class Task {
     }
 
     public Instant getEndTime() {
-        long SECONDS_IN_MINUTE = 60L;
-        return startTime.plusSeconds(duration * SECONDS_IN_MINUTE);
+        if (startTime == null) {
+            return null;
+        } else {
+            long SECONDS_IN_MINUTE = 60L;
+            return startTime.plusSeconds(duration * SECONDS_IN_MINUTE);
+        }
     }
 
     public long getDuration() {

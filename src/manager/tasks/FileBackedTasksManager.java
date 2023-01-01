@@ -38,24 +38,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 TaskManager manager = Managers.getDefault();
                 FileBackedTasksManager fileManager = new FileBackedTasksManager(new File("resources/data.csv"));
 
-                Task task = new Task("Планы на день:", "Выбросить мусор", Instant.now(), 0);
+                Task task = new Task("Планы на день:", "Выбросить мусор", null, 0);
                 manager.saveTask(task);
 
-                Task task2 = new Task("Планы на неделю:", "Сдать ТЗ", Instant.now(), 0);
+                Task task2 = new Task("Планы на неделю:", "Сдать ТЗ", Instant.parse("2023-01-05T11:58:56.704873Z"), 0);
                 manager.saveTask(task2);
 
-                Epic epic = new Epic("Покупки", "Еда", Instant.now(), 0);
+                Epic epic = new Epic("Покупки", "Еда", Instant.parse("2023-01-02T11:58:56.704873Z"), 0);
                 manager.saveEpic(epic);
-                Subtask subtask = new Subtask("Хлебобулочные", "Рогалики", Instant.now(), 0);
+                Subtask subtask = new Subtask("Хлебобулочные", "Рогалики", Instant.parse("2023-01-01T11:58:56.704873Z"), 0);
                 subtask.setEpicId(epic.getId());
                 manager.saveSubtask(subtask);
-                Subtask subtask2 = new Subtask("Мясное", "Фарш", Instant.now(), 0);
+                Subtask subtask2 = new Subtask("Мясное", "Фарш", Instant.parse("2023-01-04T11:58:56.704873Z"), 0);
                 subtask2.setEpicId(epic.getId());
                 manager.saveSubtask(subtask2);
 
-                Epic epic2 = new Epic("Покупки", "Для дома", Instant.now(), 0);
+                Epic epic2 = new Epic("Покупки", "Для дома", Instant.parse("2023-01-06T11:58:56.704873Z"), 0);
                 manager.saveEpic(epic2);
-                Subtask subtask3 = new Subtask("Мясное", "Фарш", Instant.now(), 0);
+                Subtask subtask3 = new Subtask("Мясное", "Фарш", null, 0);
                 subtask3.setEpicId(epic2.getId());
                 manager.saveSubtask(subtask3);
 
@@ -75,7 +75,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public FileBackedTasksManager(File file) {
         this.file = file;
-//        this.historyManager = Managers.getDefaultHistory();
     }
 
     public void save() {
@@ -122,24 +121,30 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 String title = obj[2];
                 TaskStatus status = TaskStatus.valueOf(obj[3]);
                 String description = obj[4];
-                Instant startTime = Instant.parse(obj[5]);
+                Instant startTime = null;
+                if (obj[5] != null && !obj[5].equals("null")) {
+                    startTime = Instant.parse(obj[5]);
+                }
                 long duration = Long.parseLong(obj[6]);
 
                 switch (Objects.requireNonNull(type)) {
                     case TASK: {
                         Task task = new Task(id, title, description, status, startTime, duration);
                         taskStore.put(id, task);
+                        prioritizedTasks.add(task);
                         break;
                     }
                     case EPIC: {
-                        Epic epic = new Epic(id, title, description, status, startTime, duration);
+                         Epic epic = new Epic(id, title, description, status, startTime, duration);
                         epicStore.put(id, epic);
+                        prioritizedTasks.add(epic);
                         break;
                     }
                     case SUBTASK: {
                         int epicId = Integer.parseInt(obj[7]);
                         Subtask subtask = new Subtask(id, title, description, status, startTime, duration, epicId);
                         subtaskStore.put(id, subtask);
+                        prioritizedTasks.add(subtask);
                         break;
                     }
                 }

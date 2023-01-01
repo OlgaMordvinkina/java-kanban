@@ -149,10 +149,6 @@ public abstract class TaskManagerTest {
         );
     }
 
-
-
-
-
     @Test
     public void getTaskStoreTest() {
         Task task1 = creationTask();
