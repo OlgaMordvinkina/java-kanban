@@ -1,7 +1,8 @@
 package api.handlers;
 
 import api.adapters.InstantAdapter;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.tasks.TaskManager;
@@ -10,7 +11,6 @@ import tasks.Epic;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -24,29 +24,20 @@ public class EpicHandler implements HttpHandler {
     }
 
     public void handle(HttpExchange httpExchange) {
+        final String query = httpExchange.getRequestURI().getQuery();
         String response;
         try {
-            String path = httpExchange.getRequestURI().getPath();
             String requestMethod = httpExchange.getRequestMethod();
             switch (requestMethod) {
                 case "GET": {
-                    if (Pattern.matches("^/tasks/epic/$", path)) {
+                    if (query == null) {
                         response = gson.toJson(taskManager.getEpicStore());
                         sendText(httpExchange, response);
                         break;
-                    }
-
-                    if (Pattern.matches("^/tasks/epic/?\\d+$", path)) {
-                        String pathId = path.replaceFirst("/tasks/epic/", "");
-                        int id = parsePathId(pathId);
-                        if (id != -1) {
-                            response = gson.toJson(taskManager.getEpicById(id));
-                            sendText(httpExchange, response);
-                        } else {
-                            System.out.println("Неккоректный id = " + pathId);
-                            httpExchange.sendResponseHeaders(405, 0);
-                        }
-                        break;
+                    } else {
+                        final int id = Integer.parseInt(query.substring(3));
+                        response = gson.toJson(taskManager.getEpicById(id));
+                        sendText(httpExchange, response);
                     }
                     break;
                 }
@@ -56,7 +47,7 @@ public class EpicHandler implements HttpHandler {
                     String json = bodyRequest.replaceAll("\n|\\s", "");
                     final Epic epic = gson.fromJson(json, Epic.class);
 
-                    if (Pattern.matches("^/tasks/epic/$", path)) {
+                    if (query == null) {
                         if (!json.contains("id")) {
                             taskManager.saveEpic(epic);
                             System.out.println("Epic создан.");
@@ -69,25 +60,15 @@ public class EpicHandler implements HttpHandler {
                     break;
                 }
                 case "DELETE": {
-                    if (Pattern.matches("^/tasks/epic/$", path)) {
+                    if (query == null) {
                         taskManager.deleteEpics();
                         System.out.println("Все эпики удалены.");
                         break;
-                    }
-
-                    if (Pattern.matches("^/tasks/epic/?\\d+$", path)) {
-                        String pathId = path.replaceFirst("/tasks/epic/", "");
-                        int id = parsePathId(pathId);
-                        if (id != -1) {
-                            taskManager.deleteEpic(id);
-                            System.out.println("Эпик с id = " + id + " удалён.");
-                            httpExchange.sendResponseHeaders(200, 0);
-                        } else {
-                            System.out.println("Неккоректный id = " + pathId);
-                            httpExchange.sendResponseHeaders(405, 0);
-                        }
                     } else {
-                        httpExchange.sendResponseHeaders(405, 0);
+                        final int id = Integer.parseInt(query.substring(3));
+                        taskManager.deleteEpic(id);
+                        System.out.println("Эпик с id = " + id + " удалён.");
+                        httpExchange.sendResponseHeaders(200, 0);
                     }
                     break;
                 }
@@ -97,14 +78,6 @@ public class EpicHandler implements HttpHandler {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private int parsePathId(String path) {
-        try {
-            return Integer.parseInt(path);
-        } catch (NumberFormatException e) {
-            return -1;
         }
     }
 

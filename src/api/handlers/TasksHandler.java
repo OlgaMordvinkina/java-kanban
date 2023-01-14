@@ -9,7 +9,6 @@ import manager.tasks.TaskManager;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -23,13 +22,13 @@ public class TasksHandler implements HttpHandler {
     }
 
     public void handle(HttpExchange httpExchange) {
+        final String query = httpExchange.getRequestURI().getQuery();
         String response;
         try {
-            String path = httpExchange.getRequestURI().getPath();
             String requestMethod = httpExchange.getRequestMethod();
             switch (requestMethod) {
                 case "GET": {
-                    if (Pattern.matches("^/tasks/$", path)) {
+                    if (query == null) {
                         response = gson.toJson(taskManager.getPrioritizedTasks());
                         sendText(httpExchange, response);
                         break;
