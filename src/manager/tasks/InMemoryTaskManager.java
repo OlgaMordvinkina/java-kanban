@@ -138,6 +138,7 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.removeIf(task -> task.getId().equals(epic.getId()));
         }
         epicStore.clear();
+        deleteSubtasks();
     }
 
     @Override
@@ -268,8 +269,19 @@ public class InMemoryTaskManager implements TaskManager {
         checkTaskIntersection();
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
-        return new ArrayList<>(prioritizedTasks); //отсортирован при инициализации
+        return new ArrayList<>(prioritizedTasks);
+    }
+
+    @Override
+    public void save() {
+
+    }
+
+    @Override
+    public String loadAll() {
+        return null;
     }
 
     private void checkTaskIntersection() {

@@ -41,7 +41,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest {
 
     @Test
     public void saveEmptyTasksList() {
-        TaskManager manager = Managers.getDefault();
+        TaskManager manager = new FileBackedTasksManager();
         new FileBackedTasksManager(testFile);
 
         Epic epic = new Epic("Покупки", "Еда", Instant.now(), 0);
@@ -68,7 +68,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest {
 
     @Test
     public void saveEpicWithoutSubtasks() {
-        TaskManager manager = Managers.getDefault();
+        TaskManager manager = new FileBackedTasksManager();
 
         Task task = new Task("Планы на день:", "Выбросить мусор", Instant.now(), 0);
         manager.saveTask(task);
@@ -88,7 +88,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest {
 
     @Test
     public void saveEmptyHistoryList() {
-        TaskManager manager = Managers.getDefault();
+        TaskManager manager = new FileBackedTasksManager();
 
         Task task = new Task("Планы на день:", "Выбросить мусор", Instant.now(), 0);
         manager.saveTask(task);
