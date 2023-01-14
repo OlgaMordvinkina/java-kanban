@@ -1,14 +1,11 @@
 package api.handlers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import api.adapters.InstantAdapter;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.tasks.TaskManager;
 import tasks.Epic;
-import tasks.TaskStatus;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +16,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class EpicHandler implements HttpHandler {
     private final TaskManager taskManager;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 
     public EpicHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
@@ -53,40 +51,19 @@ public class EpicHandler implements HttpHandler {
                     break;
                 }
                 case "POST": {
-                    Epic epic;
                     String bodyRequest = new String(httpExchange.getRequestBody().readAllBytes(),
                             StandardCharsets.UTF_8);
-
-                    JsonElement jsonElement = JsonParser.parseString(bodyRequest);
-                    JsonObject epicObject = jsonElement.getAsJsonObject();
-
-                    String title = epicObject.get("title").getAsString();
-                    String description = epicObject.get("description").getAsString();
-                    Instant startTime = Instant.ofEpochSecond(
-                            epicObject.get("startTime").getAsJsonObject().get("seconds").getAsLong(),
-                            epicObject.get("startTime").getAsJsonObject().get("nanos").getAsLong()
-                    );
-                    long duration = Long.parseLong(epicObject.get("duration").getAsString());
+                    String json = bodyRequest.replaceAll("\n|\\s", "");
+                    final Epic epic = gson.fromJson(json, Epic.class);
 
                     if (Pattern.matches("^/tasks/epic/$", path)) {
-                        if (!epicObject.keySet().contains("id")) {
-                            epic = new Epic(title, description, startTime, duration);
+                        if (!json.contains("id")) {
                             taskManager.saveEpic(epic);
                             System.out.println("Epic создан.");
                             sendText(httpExchange, "Epic was created");
-                            break;
-                        }
-                    }
-
-                    if (Pattern.matches("^/tasks/epic/?\\d+$", path)) {
-                        String pathId = path.replaceFirst("/tasks/epic/", "");
-                        int id = parsePathId(pathId);
-                        TaskStatus status = TaskStatus.valueOf(epicObject.get("status").getAsString());
-                        if (id != -1) {
-                            epic = new Epic(id, title, description, status, startTime, duration);
+                        } else {
                             taskManager.updateEpic(epic);
-                            System.out.println("Epic с id = " + id + " обновлён.");
-                            break;
+                            System.out.println("Epic с id = " + epic.getId() + " обновлён.");
                         }
                     }
                     break;

@@ -1,18 +1,22 @@
 package api.handlers;
 
+import api.adapters.InstantAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.history.HistoryManager;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HistoryHandler implements HttpHandler {
     private final HistoryManager historyManager;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 
     public HistoryHandler(HistoryManager historyManager) {
         this.historyManager = historyManager;

@@ -1,8 +1,10 @@
 package test;
 
+import api.adapters.InstantAdapter;
 import api.servers.HttpTaskServer;
 import api.servers.KVServer;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import manager.Managers;
 import manager.tasks.FileBackedTasksManager;
 import manager.tasks.TaskManager;
@@ -31,7 +33,8 @@ class HTTPTaskManagerTest extends FileBackedTasksManager {
     private KVServer server;
     private TaskManager manager;
     private HttpTaskServer httpTaskServer;
-    private Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(Instant.class, new InstantAdapter()).create();
     private String apiToken;
 
     @BeforeEach

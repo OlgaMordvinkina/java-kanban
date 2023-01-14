@@ -1,14 +1,12 @@
 package api.handlers;
 
+import api.adapters.InstantAdapter;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.tasks.TaskManager;
 import tasks.Task;
-import tasks.TaskStatus;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +17,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TaskHandler implements HttpHandler {
     private final TaskManager taskManager;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 
     public TaskHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
@@ -53,40 +52,19 @@ public class TaskHandler implements HttpHandler {
                     break;
                 }
                 case "POST": {
-                    Task task;
                     String bodyRequest = new String(httpExchange.getRequestBody().readAllBytes(),
                             StandardCharsets.UTF_8);
-
-                    JsonElement jsonElement = JsonParser.parseString(bodyRequest);
-                    JsonObject taskObject = jsonElement.getAsJsonObject();
-
-                    String title = taskObject.get("title").getAsString();
-                    String description = taskObject.get("description").getAsString();
-                    Instant startTime = Instant.ofEpochSecond(
-                            taskObject.get("startTime").getAsJsonObject().get("seconds").getAsLong(),
-                            taskObject.get("startTime").getAsJsonObject().get("nanos").getAsLong()
-                    );
-                    long duration = Long.parseLong(taskObject.get("duration").getAsString());
+                    String json = bodyRequest.replaceAll("\n|\\s", "");
+                    final Task task = gson.fromJson(json, Task.class);
 
                     if (Pattern.matches("^/tasks/task/$", path)) {
-                        if (!taskObject.keySet().contains("id")) {
-                            task = new Task(title, description, startTime, duration);
+                        if (!json.contains("id")) {
                             taskManager.saveTask(task);
-                            System.out.println("Таск создан.");
+                            System.out.println("Task создан.");
                             sendText(httpExchange, "Task was created");
-                            break;
-                        }
-                    }
-
-                    if (Pattern.matches("^/tasks/task/?\\d+$", path)) {
-                        String pathId = path.replaceFirst("/tasks/task/", "");
-                        int id = parsePathId(pathId);
-                        TaskStatus status = TaskStatus.valueOf(taskObject.get("status").getAsString());
-                        if (id != -1) {
-                            task = new Task(id, title, description, status, startTime, duration);
+                        } else {
                             taskManager.updateTask(task);
-                            System.out.println("Таск с id = " + id + " обновлён.");
-                            break;
+                            System.out.println("Task с id = " + task.getId() + " обновлён.");
                         }
                     }
                     break;
