@@ -293,7 +293,7 @@ public class InMemoryTaskManager implements TaskManager {
         });
     }
 
-    int generateId() {
+    private int generateId() {
         return ++id;
     }
 }
