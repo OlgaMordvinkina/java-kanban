@@ -397,11 +397,11 @@ public abstract class TaskManagerTest {
         Epic epic = creationEpic();
         Subtask subtask = creationSubtask();
         manager.saveTask(task);
-        manager.saveTask(epic);
+        manager.saveEpic(epic);
         manager.saveSubtask(subtask);
         subtask.setEpicId(epic.getId());
 
-        assertEquals(2, manager.getTaskStore().size(), "TaskStore не пустой.");
+        assertEquals(1, manager.getTaskStore().size(), "TaskStore не пустой.");
         assertEquals(1, manager.getEpicStore().size(), "EpicStore не пустой.");
         assertEquals(1, manager.getSubtasksStore().size(), "SubtasksStore не пустой.");
 

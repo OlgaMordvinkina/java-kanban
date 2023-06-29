@@ -31,6 +31,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest {
 
     @AfterEach
     public void afterEach() {
+        manager.deleteAllTasks();
         try {
             Files.delete(testFile.toPath());
         } catch (IOException exception) {
